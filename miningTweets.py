@@ -5,8 +5,9 @@ import os
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
+import nltk
 
-
+mongoDB_key = os.environ.get('mongodb')
 client = MongoClient("mongodb+srv://dbSPX:SQSeKptrpjt6Bi7F@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
 
 
@@ -66,14 +67,9 @@ if __name__ == '__main__':
     # Authenticate using config.py and connect to Twitter Streaming API.
     hash_tag_list = ["S&P500", "SP500", "$SPX", "$SPY"]
     fetched_tweets_filename = "tweets.txt"
+    print(mongoDB_key)
     db = client.test
     print(db)
     twitter_streamer = TwitterStreamer()
     twitter_streamer.stream_tweets(fetched_tweets_filename, hash_tag_list)
 
-
-from pymongo import MongoClient
-client = MongoClient("mongodb+srv://dbSPX:SQSeKptrpjt6Bi7F@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
-
-db = client.test
-print(db)

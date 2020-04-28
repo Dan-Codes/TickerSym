@@ -75,6 +75,7 @@ def filterTweet(tweet):
 
 def getPolarity(tweet):
     ss = sid.polarity_scores(tweet)
+    analysis = TextBlob(tweet)
     if tweet == "":
         return ss
     compound = []
@@ -83,6 +84,7 @@ def getPolarity(tweet):
     compound = [score['compound'] for score in scores]
     m = mean(compound)
     ss['mean'] = m
+    ss['textblob_polarity'] = analysis.sentiment.polarity
     print(tweet, ss)
     return ss
 
@@ -91,6 +93,7 @@ def getDB(date):
     getFunction = oldTweets.TweetAnalyzer
     db = client['spx']
     mydb = db[date]
+    textBlob_pol = []
     total_polarity = 0
     neg_polarity = 0
     pos_polarity = 0
@@ -108,6 +111,7 @@ def getDB(date):
                 total_polarity += ss['compound']
                 neg_polarity += ss['neg']
                 pos_polarity += ss['pos']
+                textBlob_pol.append(ss['textblob_polarity'])
                 count += 1
 
     total_polarity = total_polarity / count
@@ -118,6 +122,7 @@ def getDB(date):
     polarity['pos'] = str(pos_pol)
     polarity['neg'] = str(neg_pol)
     polarity['compound'] = str(total_polarity)
+    polarity['textBlob_pol'] = str(mean(textBlob_pol))
     return polarity
 
 
@@ -154,6 +159,7 @@ def getPriceData():
         df.at[date, "compound_polarity"] = polarity['compound']
         df.at[date, "positive_polarity"] = polarity['pos']
         df.at[date, "negative_polarity"] = polarity['neg']
+        df.at[date, "textBlob_polarity"] = polarity['textBlob_pol']
 
     df.to_csv('sp500.csv')
 

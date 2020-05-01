@@ -7,8 +7,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import nltk
 
-##mongoDB_key = os.environ.get('mongodb')  # replace this with the mongoDB API KEY
-mongoDB_key = "SQSeKptrpjt6Bi7F" ## make sure to change back
+mongoDB_key = os.environ.get('mongodb')  # replace this with the mongoDB API KEY
 client = MongoClient("mongodb+srv://dbSPX:"+mongoDB_key+"@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
 
 

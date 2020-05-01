@@ -33,7 +33,7 @@ import time
 style.use('ggplot')
 ps = PorterStemmer()
 client = mt.client
-stopwords = set(stopwords.words("english")).re
+stopwords = set(stopwords.words("english"))
 
 
 def filterWords(word_token):
@@ -75,15 +75,17 @@ def removeTicker(tweet):
 
     return newArray
 
+
 # filter words garbage in the tweet
 def filterTweet(tweet):
-    removedURL = removeURL(tweet) # Removes url from the tweet
+    removedURL = removeURL(tweet)  # Removes url from the tweet
     word_token = word_tokenize(removedURL)  # tokenize sentence
-    #filtered = filterWords(word_token)  # filter the dumb words
+    # filtered = filterWords(word_token)  # filter the dumb words
     removedTicker = removeTicker(word_token)
     filtered = de_token.detokenize(removedTicker)
     sentence = oldTweets.TweetAnalyzer().cleanTweet(filtered)  # clean sentence
     return sentence
+
 
 # computation using the Vader lexicon nltk and textblob
 def getPolarity(tweet):
@@ -117,8 +119,9 @@ def getDB(date):
     for doc in mydb.find():
         if not doc["historical"]:
             ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(doc['created_at'],
-                                                              '%a %b %d %H:%M:%S +0000 %Y'))  # get timestamp from database
-        else: ts = doc["date"]
+                                                                  '%a %b %d %H:%M:%S +0000 %Y'))  # get timestamp from database
+        else:
+            ts = doc["date"]
 
         if ts.__contains__(date):
             tweet = doc['text']
@@ -132,9 +135,8 @@ def getDB(date):
                 textBlob_pol.append(ss['textblob_polarity'])
                 count += 1
 
-
-        mydb.update_one({"id": doc["id"]}, { '$push' : {'polarity_list' : ss['compound']}}, upsert=True)
-        #mydb.update(document=doc, { '$push' : {'polarity_list' : ss['compound']}}, upsert=True)
+        mydb.update_one({"id": doc["id"]}, {'$push': {'polarity_list': ss['compound']}}, upsert=True)
+        # mydb.update(document=doc, { '$push' : {'polarity_list' : ss['compound']}}, upsert=True)
 
     total_polarity = total_polarity / count
     neg_pol = neg_polarity / count
@@ -162,10 +164,8 @@ def fixDatabase(date):
             db[date].insert_one(doc)
 
 
-
-#get the price of S&p500 using the yahoo api
-def getPriceData():
-
+# get the price of S&p500 using the yahoo api
+def getPriceData2():
     # print("Format: mm-dd-yyyy")
     # startdate = input("Start at: ").split("-")
     # enddate = input("End at: ").split("-")
@@ -176,13 +176,13 @@ def getPriceData():
     # startyear = int(startdate[2])
     # endyear = int(enddate[2])
     sp500 = pandas_datareader.get_data_yahoo('%5EGSPC',
-                                       start=datetime.datetime(2020, 4, 21),
-                                       end=datetime.datetime(2020, 4, 25))   # api to get sp500 chart prices
+                                             start=datetime.datetime(2020, 4, 21),
+                                             end=datetime.datetime(2020, 4, 25))  # api to get sp500 chart prices
     print(sp500.head())
 
 
-#change the dates column of the dataframe
-def addDates():
+# change the dates column of the dataframe
+def addDates(f):
     print("Format: mm-dd-yyyy")
     startdate = input("Start at: ").split("-")
     enddate = input("End at: ").split("-")
@@ -195,14 +195,14 @@ def addDates():
     sp500 = pandas_datareader.get_data_yahoo('%5EGSPC',
                                              start=datetime.datetime(startyear, startmonth, startday),
                                              end=datetime.datetime(endyear, endmonth, endday))  # api to get sp500 chart prices
-    print(sp500)
-    sp500.to_csv('sp500.csv')
-
+    print(sp500.head())
+    sp500.to_csv(f)
 
 
 # Get polarity score of the dates in the dataframe
 def analyzeData():
     df = pd.read_csv('sp500.csv', index_col='Date', parse_dates=True)
+
 
 def getPriceData(f):
     # sp500 = pandas_datareader.get_data_yahoo('%5EGSPC',
@@ -210,7 +210,7 @@ def getPriceData(f):
     #                                    end=datetime.datetime(2020, 4, 25))   # api to get sp500 chart prices
     # print(sp500.head())
 
-    df = pd.read_csv(f, index_col='Date', parse_dates=True) #'sp500.csv'
+    df = pd.read_csv(f, index_col='Date', parse_dates=True)  # getting the file content
 
     for date in (df.index.array):
         date = (str(date)[0:10])
@@ -227,10 +227,11 @@ def getPriceData(f):
 
     df.to_csv(f)
 
+
 def make_dataframe_from_stock_tweets():
     sp500 = pandas_datareader.get_data_yahoo('%5EGSPC',
-                                        start=datetime.datetime(2019, 10, 15),
-                                        end=datetime.datetime(2019, 10, 19))   # api to get sp500 chart prices
+                                             start=datetime.datetime(2019, 10, 15),
+                                             end=datetime.datetime(2019, 10, 19))  # api to get sp500 chart prices
     print(sp500.head())
     df = pd.DataFrame(sp500)
 
@@ -242,7 +243,7 @@ def tweets_to_dataframe(tweets):
     return df
 
 
-#removes non-alphabetical words
+# removes non-alphabetical words
 def cleanTweet(tweet):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
@@ -253,15 +254,49 @@ def printDF(file_name):
     table = tabulate(df, headers='keys', tablefmt='psql')
     print(table)
 
+def printGraph(file_name):
+    f = 'sp500-historical.csv'
+    df = pd.read_csv(file_name, index_col='Date', parse_dates=True)
+
+    dates = df.index.to_list()
+    polarityList = df['compound_polarity'].to_list()
+
+    print(dates)
+    print(polarityList)
+
+    axes = plt.gca()
+    axes.set_ylim([-0.4, 0.4])
+
+    # polarityList = {'2020-02-20': 0.0026245117187500247, '2020-02-21': 0.022203057199211045, '2020-02-22': 0.11746189956331884, '2020-02-23': 0.0675799597180262, '2020-02-24': -0.0185952544031311, '2020-02-25': -0.08119766401590471, '2020-02-26': -0.017515340086830686, '2020-02-27': -0.14538179969496676, '2020-02-28': 0.006154630083292493, '2020-02-29': -0.013088311688311692, '2020-03-01': -0.05857078916372196, '2020-03-02': 0.0839724289911853, '2020-03-03': -0.07073632887189299, '2020-03-04': 0.05267408337518842, '2020-03-05': -0.06729975739932059, '2020-03-06': -0.000956620125180545, '2020-03-07': -0.00306628383921247, '2020-03-08': -0.04207881355932195, '2020-03-09': -0.0927196491228072, '2020-03-10': 0.027609550000000045, '2020-03-11': -0.11583041975308613, '2020-03-12': -0.15199861317483893, '2020-03-13': 0.04633336698637039, '2020-03-14': -0.048644279786603364, '2020-03-15': -0.09751837811900156, '2020-03-16': -0.12113731268731252, '2020-03-17': 0.004754031117397438, '2020-03-18': -0.04121448780487802, '2020-03-19': -0.00980536141694593, '2020-03-20': -0.0987696869070208, '2020-03-21': -0.05405679257786614, '2020-03-22': -0.11718664987405489, '2020-03-23': -0.04409216362740274}
+    polarityX = dates
+    polarityX_np = np.array(polarityX)
+
+    polarityY = polarityList
+    polarityY_np = np.array(polarityY)
+
+    plt.plot(polarityX, polarityY)
+
+    # m, b = np.polyfit(polarityX_np, polarityY_np, 1)
+    # print(m, b)
+
+    # plt.plot(np.array([x for x in range(0,len(polarityX))]), m*np.array([x for x in range(0,len(polarityX))]) + b)
+
+    plt.xlabel('date')
+    plt.ylabel('tweet sentiments')
+    plt.title(file_name + " polarity trend")
+    plt.show()
+
+
 if __name__ == '__main__':
     sid.lexicon.update(words)
-##    getPriceData('sp500.csv')
-##    printDF("sp500.csv")
+    # addDates('sp500-historical.csv')
+    #addDates('sp500-historical.csv')
+    ##    getPriceData('sp500.csv')
+    ##    printDF("sp500.csv")
 
-    #make_dataframe_from_stock_tweets()
+    # make_dataframe_from_stock_tweets()
     #getPriceData('sp500-historical.csv')
-    #printDF("sp500-historical.csv")
-
+    # printDF("sp500-historical.csv")
 
     ###############################
 
@@ -300,33 +335,9 @@ if __name__ == '__main__':
 ##
 ##        polarityList[date] = sum(polarities)/len(polarities)
 
-    f = 'sp500-historical.csv'
-    df = pd.read_csv(f, index_col='Date', parse_dates=True)
+    addDates('SP500-covid19.csv')
+    getPriceData('SP500-covid19.csv')
+    printDF('SP500-covid19.csv')
+    printGraph('SP500-covid19.csv')
 
-    dates = df.index.array
-    polarityList = df['compound_polarity'].array
 
-    print(dates)
-    print(polarityList)
-
-    axes = plt.gca()
-    axes.set_ylim([-0.4,0.4])
-
-    #polarityList = {'2020-02-20': 0.0026245117187500247, '2020-02-21': 0.022203057199211045, '2020-02-22': 0.11746189956331884, '2020-02-23': 0.0675799597180262, '2020-02-24': -0.0185952544031311, '2020-02-25': -0.08119766401590471, '2020-02-26': -0.017515340086830686, '2020-02-27': -0.14538179969496676, '2020-02-28': 0.006154630083292493, '2020-02-29': -0.013088311688311692, '2020-03-01': -0.05857078916372196, '2020-03-02': 0.0839724289911853, '2020-03-03': -0.07073632887189299, '2020-03-04': 0.05267408337518842, '2020-03-05': -0.06729975739932059, '2020-03-06': -0.000956620125180545, '2020-03-07': -0.00306628383921247, '2020-03-08': -0.04207881355932195, '2020-03-09': -0.0927196491228072, '2020-03-10': 0.027609550000000045, '2020-03-11': -0.11583041975308613, '2020-03-12': -0.15199861317483893, '2020-03-13': 0.04633336698637039, '2020-03-14': -0.048644279786603364, '2020-03-15': -0.09751837811900156, '2020-03-16': -0.12113731268731252, '2020-03-17': 0.004754031117397438, '2020-03-18': -0.04121448780487802, '2020-03-19': -0.00980536141694593, '2020-03-20': -0.0987696869070208, '2020-03-21': -0.05405679257786614, '2020-03-22': -0.11718664987405489, '2020-03-23': -0.04409216362740274}
-    polarityX = list(dates)
-    polarityX_np = np.array(polarityX)
-
-    polarityY = polarityList
-    polarityY_np = np.array(polarityY)
-
-    plt.plot(polarityX, polarityY)
-
-    m, b = np.polyfit(np.array([x for x in range(0,len(polarityX))]), polarityY_np, 1)
-    print(m, b)
-
-    plt.plot(np.array([x for x in range(0,len(polarityX))]), m*np.array([x for x in range(0,len(polarityX))]) + b)
-
-    plt.xlabel('date')
-    plt.ylabel('tweet sentiments')
-    plt.title('cool graph')
-    plt.show()

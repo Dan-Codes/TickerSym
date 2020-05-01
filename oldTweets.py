@@ -2,6 +2,7 @@ import GetOldTweets3 as got # make sure to do pip install GetOldTweets3 first.
 import json
 import datetime
 import re
+import time
 
 # make sure to pip install these guys
 import numpy as np
@@ -53,10 +54,10 @@ iP = {"Great Recession 2008"  : ("2007-12-01", "2007-12-05"),
 
 #
 #2/21 - 3/22 cv
-dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2020-02-24", end="2020-03-23")] ## upperbound not included
+#dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2020-03-22", end="2020-03-23")] ## upperbound not included
 
 #10/15 - 11/15 flat
-#dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2019-10-15", end="2019-11-16")] ## upperbound not included
+dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2019-10-15", end="2019-11-16")] ## upperbound not included
 
 
 hashtagList = ["S&P500", "SP500", "$SPX", "$SPY"]
@@ -122,6 +123,12 @@ if __name__ == '__main__':
         print("finished mongodb upload")
 
         date_i += 1
+
+        if date_i > 0 and date_i % 4 == 0:
+            print("Sleeping in case of rate limit...")
+            print("Current Time: ", datetime.datetime.now())
+            time.sleep(900)
+
 ##    tweet_analyzer = TweetAnalyzer()
 ##    df = tweet_analyzer.tweetsToDataFrame(masterTweets) ## data frame
 ##    df['sentiment']  = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df["tweets"]])

@@ -7,14 +7,16 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import nltk
 
-mongoDB_key = os.environ.get('mongodb')  # replace this with the mongoDB API KEY
+##mongoDB_key = os.environ.get('mongodb')  # replace this with the mongoDB API KEY
+mongoDB_key = "SQSeKptrpjt6Bi7F" ## make sure to change back
 client = MongoClient("mongodb+srv://dbSPX:"+mongoDB_key+"@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
 
 
-consumer_key = os.environ.get('CONSUMER_KEY')
-consumer_secret = os.environ.get('CONSUMER_SECRET')
-access_token = os.environ.get('ACCESS_TOKEN')
-access_token_secret = os.environ.get('ACCESS_SECRET_TOKEN')
+consumer_key = "0wKlzBq85PVd7vycTJoFJhHsM" # os.environ.get('CONSUMER_KEY')
+consumer_secret = "LjvPDBRU4uZK9fUk62V1w5MXBNJBwMbDLoK6Rp0B4GUOewGfSz" # os.environ.get('CONSUMER_SECRET')
+access_token = "4543045944-fgbvrOgDksuD2M7zjetCspzczn8jZFrDqquV8uO" # os.environ.get('ACCESS_TOKEN')
+access_token_secret = "lWT1WosHWQaIKy4BjeIuWfuArFPrChZ1b9kFjhoUDprcp" # os.environ.get('ACCESS_SECRET_TOKEN')
+
 api = twitter.Api(consumer_key=consumer_key,
                   consumer_secret=consumer_secret,
                   access_token_key=access_token,

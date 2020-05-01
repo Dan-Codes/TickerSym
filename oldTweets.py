@@ -2,6 +2,7 @@ import GetOldTweets3 as got # make sure to do pip install GetOldTweets3 first.
 import json
 import datetime
 import re
+import time
 
 # make sure to pip install these guys
 import numpy as np
@@ -9,9 +10,16 @@ import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize  ## make sure all stuff is downloaded
 from textblob import TextBlob
 
+from pymongo import MongoClient
+
 
 pd.set_option("display.max_columns", 100)
 pd.set_option("display.max_colwidth", 50)
+
+print("Current Time: ", datetime.datetime.now())
+client = MongoClient("mongodb+srv://dbSPX:SQSeKptrpjt6Bi7F@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
+db = client.test
+print(db)
 
 ######################
 
@@ -40,60 +48,93 @@ class TweetAnalyzer():
 
 # iP = inflectionPoints, month range
 iP = {"Great Recession 2008"  : ("2007-12-01", "2007-12-05"),
-      "Coronavirus"           : ("2020-03-23", "2020-03-24"), #("2020-01-01", "2020-04-14")
+      "Coronavirus"           : ("2020-02-20", "2020-02-21"), #("2020-01-01", "2020-04-14")
       "China-US Trade War"    : ("2018-12-01", "2018-12-31")
      }
+
+#
+#2/21 - 3/22 cv
+#dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2020-03-22", end="2020-03-23")] ## upperbound not included
+
+#10/15 - 11/15 flat
+dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2019-10-15", end="2019-11-16")] ## upperbound not included
+
 
 hashtagList = ["S&P500", "SP500", "$SPX", "$SPY"]
 keywords = ["bullish", "bearish", "support line", "resistance line"]
 
 
 if __name__ == '__main__':
-    
-    event = "Coronavirus"
-    fromDate = iP[event][0]
-    toDate = iP[event][1]
-    query = " OR ".join(hashtagList) # see Twitter documentation for different search operators
-    maxTweets = 1000 # comment this out if unlimited
 
-    tweetCriteria = got.manager.TweetCriteria().setQuerySearch(query)\
-                                               .setSince(fromDate)\
-                                               .setUntil(toDate)\
-                                               .setMaxTweets(maxTweets) # comment this if unnecessary
+    date_i = 0
+    while date_i < len(dateRange)-1:
+        print("Date: " + dateRange[date_i])
+        
+        #event = "Coronavirus"
+        fromDate = dateRange[date_i] #iP[event][0]
+        toDate = dateRange[date_i + 1] #iP[event][1]
+        query = " OR ".join(hashtagList) # see Twitter documentation for different search operators
+        maxTweets = 3000 # comment this out if unlimited
 
-    ###### RESULTS
-    masterTweets = {}
-    print("Getting " + str(maxTweets) + " historical tweets about: " + event + " from: " + fromDate + " to: " + toDate)
+        tweetCriteria = got.manager.TweetCriteria().setQuerySearch(query)\
+                                                   .setSince(fromDate)\
+                                                   .setUntil(toDate)\
+                                                   .setMaxTweets(maxTweets) # comment this if unnecessary
 
-    count = 0
-    for tweet in got.manager.TweetManager.getTweets(tweetCriteria):
-        #print("Tweet " + str(count))
-        print(tweet)
+        ###### RESULTS
+        #masterTweets = {}
+        masterTweetsList = []
+        print("Getting " + str(maxTweets) + " historical tweets about from: " + fromDate + " to: " + toDate)
 
-        # Tweet properties (see documentation for full list of properties: https://pypi.org/project/GetOldTweets3/)
-        masterTweets[tweet.id] = {
-            "date": (tweet.date).strftime('%Y-%m-%d'),
-            "username": tweet.username,
-            "text": tweet.text,
-            
-            "id": tweet.id,
-            "permalink": tweet.permalink,
-            "to": tweet.to,
-            "retweets": tweet.retweets,
-            "favorites": tweet.favorites,
-            "mentions": tweet.mentions,
-            "hashtags": tweet.hashtags,
-            "geo": tweet.geo }
+        mydb = client["spx"]
+        count = 0
+        for tweet in got.manager.TweetManager.getTweets(tweetCriteria):
+            #print("Tweet " + str(count))
+            #print(tweet)
+            if count == 0: print("Inserting into db...")
 
-        count += 1
+            # Tweet properties (see documentation for full list of properties: https://pypi.org/project/GetOldTweets3/)
+            currentTweet = {
+                "historical": True,
+                "date": (tweet.date).strftime('%Y-%m-%d'),
+                "username": tweet.username,
+                "text": tweet.text,
+                
+                "id": tweet.id,
+                "permalink": tweet.permalink,
+                "to": tweet.to,
+                "retweets": tweet.retweets,
+                "favorites": tweet.favorites,
+                "mentions": tweet.mentions,
+                "hashtags": tweet.hashtags,
+                "geo": tweet.geo }
 
+            #mycol = mydb[currentTweet["date"]] ## ??
+            #mycol.insert_one(currentTweet) ## no need to json.dumps
 
-    tweet_analyzer = TweetAnalyzer()
-    df = tweet_analyzer.tweetsToDataFrame(masterTweets) ## data frame
-    df['sentiment']  = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df["tweets"]])
+            #masterTweets[tweet.id] = currentTweet
+            masterTweetsList.append(currentTweet)
+            count += 1
 
-    print(df.head(10))
-    print("Sentiment average: " + str(np.mean(df["sentiment"])))
+        mycol = mydb[dateRange[date_i]]
+        mycol.insert_many(masterTweetsList)
+
+        print("Current Time: ", datetime.datetime.now())
+        print("finished mongodb upload")
+
+        date_i += 1
+
+        if date_i > 0 and date_i % 4 == 0:
+            print("Sleeping in case of rate limit...")
+            print("Current Time: ", datetime.datetime.now())
+            time.sleep(900)
+
+##    tweet_analyzer = TweetAnalyzer()
+##    df = tweet_analyzer.tweetsToDataFrame(masterTweets) ## data frame
+##    df['sentiment']  = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df["tweets"]])
+##
+##    print(df.head(10))
+##    print("Sentiment average: " + str(np.mean(df["sentiment"])))
     
     #f = open("historical_tweets.txt", "w")
     #json.dump(masterTweets, f)

@@ -7,7 +7,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import nltk
 
-mongoDB_key = os.environ.get('mongodb')  # replace this with the mongoDB API KEY
+mongoDB_key = 'SQSeKptrpjt6Bi7F'  # replace this with the mongoDB API KEY
 client = MongoClient("mongodb+srv://dbSPX:"+mongoDB_key+"@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
 
 
@@ -24,26 +24,23 @@ print(api.VerifyCredentials())
 
 
 class TwitterStreamer():
-    """
-    Class for streaming and processing live tweets.
-    """
 
     def __init__(self):
         pass
 
     def stream_tweets(self, fetched_tweets_filename, hash_tag_list):
         # This handles Twitter authentication and the connection to Twitter Streaming API
-        listener = StdOutListener(fetched_tweets_filename)
+        listener = TweetListener(fetched_tweets_filename)
         auth = OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         stream = Stream(auth, listener)
 
-        # This line filter Twitter Streams to capture data by the keywords:
+        # This line makes sure that only tweets that mention the S&P500 get mined
         stream.filter(track=hash_tag_list)
 
 
-# # # # TWITTER STREAM LISTENER # # # #
-class StdOutListener(StreamListener):
+# Twitter Listener
+class TweetListener(StreamListener):
 
     def __init__(self, fetched_tweets_filename):
         self.fetched_tweets_filename = fetched_tweets_filename

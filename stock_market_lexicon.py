@@ -1,3 +1,5 @@
+# List of words to increase accuracy of the polarity of the Vader Lexicon polarity score results
+# higher the number deviates from zero, the more polarizing the word.
 additional = {
     'flat': -0.5,
     'flattish': -0.5,

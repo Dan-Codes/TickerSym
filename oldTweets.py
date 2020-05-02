@@ -24,6 +24,8 @@ print(db)
 ######################
 
 class TweetAnalyzer():
+
+    # placing raw tweet data into a data_frame
     def tweetsToDataFrame(self, tweets):
         df = pd.DataFrame(data=[ tweets[tweet]["text"] for tweet in tweets], columns=['tweets'])
         ##df['id']        = np.array([tweets[tweet]["id"] for tweet in tweets])
@@ -34,9 +36,11 @@ class TweetAnalyzer():
 
         return df
 
+    # gets rid of non-alphabetical words
     def cleanTweet(self, tweet):
         return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
+    #using Textblob to analyze sentiment
     def analyze_sentiment(self, tweet):
         analysis = TextBlob(self.cleanTweet(tweet))
 
@@ -82,15 +86,12 @@ if __name__ == '__main__':
                                                    .setMaxTweets(maxTweets) # comment this if unnecessary
 
         ###### RESULTS
-        #masterTweets = {}
         masterTweetsList = []
         print("Getting " + str(maxTweets) + " historical tweets about from: " + fromDate + " to: " + toDate)
 
         mydb = client["spx"]
         count = 0
         for tweet in got.manager.TweetManager.getTweets(tweetCriteria):
-            #print("Tweet " + str(count))
-            #print(tweet)
             if count == 0: print("Inserting into db...")
 
             # Tweet properties (see documentation for full list of properties: https://pypi.org/project/GetOldTweets3/)
@@ -109,10 +110,6 @@ if __name__ == '__main__':
                 "hashtags": tweet.hashtags,
                 "geo": tweet.geo }
 
-            #mycol = mydb[currentTweet["date"]] ## ??
-            #mycol.insert_one(currentTweet) ## no need to json.dumps
-
-            #masterTweets[tweet.id] = currentTweet
             masterTweetsList.append(currentTweet)
             count += 1
 
@@ -129,13 +126,4 @@ if __name__ == '__main__':
             print("Current Time: ", datetime.datetime.now())
             time.sleep(900)
 
-##    tweet_analyzer = TweetAnalyzer()
-##    df = tweet_analyzer.tweetsToDataFrame(masterTweets) ## data frame
-##    df['sentiment']  = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df["tweets"]])
-##
-##    print(df.head(10))
-##    print("Sentiment average: " + str(np.mean(df["sentiment"])))
-    
-    #f = open("historical_tweets.txt", "w")
-    #json.dump(masterTweets, f)
-    #f.close()
+

@@ -25,14 +25,20 @@ import numpy as np
 
 import csv
 
+# object for the NLTK
 sid = SentimentIntensityAnalyzer()
+
+# object for the additional words for the lexicon
 words = stock_market_lexicon.additional
+
 de_token = TreebankWordDetokenizer()
 import time
 
 style.use('ggplot')
 ps = PorterStemmer()
 client = mt.client
+
+
 stopwords = set(stopwords.words("english"))
 
 
@@ -44,17 +50,6 @@ def filterWords(word_token):
             filtered_sentence.append(w)
 
     return filtered_sentence
-
-
-# dont worry about this
-def getPolarity2(tweet):
-    word_token = word_tokenize(tweet)  # tokenize sentence
-    filtered = filterWords(word_token)  # filter the dumb words
-    filtered = de_token.detokenize(filtered)  # un-tokenize
-    # sentence = getFunction.cleanTweet(filtered)  # clean sentence
-    ss = sid.polarity_scores(filtered)
-    print(tweet, ss)
-    return ss
 
 
 def removeURL(tweet):
@@ -181,7 +176,8 @@ def getPriceData2():
     print(sp500.head())
 
 
-# change the dates column of the dataframe
+# asks user in console the range that they would like the dataframe to be
+# places the s&p500 prices of that date range into the csv file
 def addDates(f):
     print("Format: mm-dd-yyyy")
     startdate = input("Start at: ").split("-")
@@ -204,6 +200,7 @@ def analyzeData():
     df = pd.read_csv('sp500.csv', index_col='Date', parse_dates=True)
 
 
+# Gets Dates from the DF and searches for tweets in the Mongo_DB, gets polarity and enters it into the DF
 def getPriceData(f):
     # sp500 = pandas_datareader.get_data_yahoo('%5EGSPC',
     #                                    start=datetime.datetime(2020, 4, 21),
@@ -217,9 +214,7 @@ def getPriceData(f):
         polarity = getDB(date)
         print(date, polarity)
 
-        # with open('sp500.csv', 'r') as f:
-        # reader = csv.reader(f)
-        # df.set_value(date, "compound_polarity", polarity)
+        # Set values into the DF
         df.at[date, "compound_polarity"] = polarity['compound']
         df.at[date, "positive_polarity"] = polarity['pos']
         df.at[date, "negative_polarity"] = polarity['neg']
@@ -254,6 +249,7 @@ def printDF(file_name):
     table = tabulate(df, headers='keys', tablefmt='psql')
     print(table)
 
+# X-axis contains list of dates, Y-axis contains the polarity
 def printGraph(file_name):
     f = 'sp500-historical.csv'
     df = pd.read_csv(file_name, index_col='Date', parse_dates=True)
@@ -265,9 +261,8 @@ def printGraph(file_name):
     print(polarityList)
 
     axes = plt.gca()
-    axes.set_ylim([-0.4, 0.4])
+    axes.set_ylim([-.4, .4])
 
-    # polarityList = {'2020-02-20': 0.0026245117187500247, '2020-02-21': 0.022203057199211045, '2020-02-22': 0.11746189956331884, '2020-02-23': 0.0675799597180262, '2020-02-24': -0.0185952544031311, '2020-02-25': -0.08119766401590471, '2020-02-26': -0.017515340086830686, '2020-02-27': -0.14538179969496676, '2020-02-28': 0.006154630083292493, '2020-02-29': -0.013088311688311692, '2020-03-01': -0.05857078916372196, '2020-03-02': 0.0839724289911853, '2020-03-03': -0.07073632887189299, '2020-03-04': 0.05267408337518842, '2020-03-05': -0.06729975739932059, '2020-03-06': -0.000956620125180545, '2020-03-07': -0.00306628383921247, '2020-03-08': -0.04207881355932195, '2020-03-09': -0.0927196491228072, '2020-03-10': 0.027609550000000045, '2020-03-11': -0.11583041975308613, '2020-03-12': -0.15199861317483893, '2020-03-13': 0.04633336698637039, '2020-03-14': -0.048644279786603364, '2020-03-15': -0.09751837811900156, '2020-03-16': -0.12113731268731252, '2020-03-17': 0.004754031117397438, '2020-03-18': -0.04121448780487802, '2020-03-19': -0.00980536141694593, '2020-03-20': -0.0987696869070208, '2020-03-21': -0.05405679257786614, '2020-03-22': -0.11718664987405489, '2020-03-23': -0.04409216362740274}
     polarityX = dates
     polarityX_np = np.array(polarityX)
 
@@ -288,7 +283,7 @@ def printGraph(file_name):
 
 
 if __name__ == '__main__':
-    sid.lexicon.update(words)
+    sid.lexicon.update(words)  # updates the Vader lexicon with the stock market terminology words
     # addDates('sp500-historical.csv')
     #addDates('sp500-historical.csv')
     ##    getPriceData('sp500.csv')
@@ -300,44 +295,17 @@ if __name__ == '__main__':
 
     ###############################
 
-    polarityList = {}
-##    dateRange = [date.strftime('%Y-%m-%d') for date in pd.date_range(start="2019-10-15", end="2019-11-15")] ## upperbound not included
-##
-##    for date in dateRange:
-##        print(date)
-##
-##        db = client['spx']
-##        mydb = db[date]
-##        polarities = []
-##
-##        for doc in mydb.find():
-##            if not doc["historical"]:
-##                ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(doc['created_at'],
-##                                                                  '%a %b %d %H:%M:%S +0000 %Y'))  # get timestamp from database
-##            else: ts = doc["date"]
-##
-##            if ts.__contains__(date):
-##                tweet = doc['text']
-##                filtered = filterTweet(tweet)
-##                ss = getPolarity(filtered)
-##                # print(filtered, ss)
-##                if ss['compound'] != 0.0:
-##                    polarities.append(ss['compound'])
-##        ##            total_polarity += ss['compound']
-##        ##            neg_polarity += ss['neg']
-##        ##            pos_polarity += ss['pos']
-##        ##            textBlob_pol.append(ss['textblob_polarity'])
-##                    #count += 1
-##
-##
-##            #mydb.update_one({"id": doc["id"]}, { '$push' : {'polarity_list' : ss['compound']}}, upsert=True)
-##            #mydb.update(document=doc, { '$push' : {'polarity_list' : ss['compound']}}, upsert=True)
-##
-##        polarityList[date] = sum(polarities)/len(polarities)
 
-    addDates('SP500-covid19.csv')
-    getPriceData('SP500-covid19.csv')
+    # addDates('SP500-covid19.csv')
+    # getPriceData('SP500-covid19.csv')
     printDF('SP500-covid19.csv')
-    printGraph('SP500-covid19.csv')
+    printGraph('sp500.csv')
+    printDF('sp500.csv')
+    printGraph('sp500.csv')
+    printDF('sp500-historical.csv')
+    printGraph('sp500-historical.csv')
+
+
+
 
 

@@ -2,15 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="447af17e-563d-4c3d-8335-ae3fed463c84" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/test.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/miningTweets.py" beforeDir="false" afterPath="$PROJECT_DIR$/miningTweets.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/newsAPI.py" beforeDir="false" afterPath="$PROJECT_DIR$/newsAPI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/newsHeadlines.csv" beforeDir="false" afterPath="$PROJECT_DIR$/newsHeadlines.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nltkAnalysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/nltkAnalysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oldTweets.py" beforeDir="false" afterPath="$PROJECT_DIR$/oldTweets.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stock_market_lexicon.py" beforeDir="false" afterPath="$PROJECT_DIR$/stock_market_lexicon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

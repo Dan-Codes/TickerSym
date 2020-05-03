@@ -16,10 +16,12 @@ consumer_secret = "LjvPDBRU4uZK9fUk62V1w5MXBNJBwMbDLoK6Rp0B4GUOewGfSz" # os.envi
 access_token = "4543045944-fgbvrOgDksuD2M7zjetCspzczn8jZFrDqquV8uO" # os.environ.get('ACCESS_TOKEN')
 access_token_secret = "lWT1WosHWQaIKy4BjeIuWfuArFPrChZ1b9kFjhoUDprcp" # os.environ.get('ACCESS_SECRET_TOKEN')
 
-api = twitter.Api(consumer_key=consumer_key,
-                  consumer_secret=consumer_secret,
-                  access_token_key=access_token,
-                  access_token_secret=access_token_secret)
+# api = twitter.Api(consumer_key=consumer_key,
+#                   consumer_secret=consumer_secret,
+#                   access_token_key=access_token,
+#                   access_token_secret=access_token_secret)
+
+
 #print(api.VerifyCredentials())
 
 

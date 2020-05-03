@@ -1,3 +1,6 @@
+newsapi
+GetOldTweets3
+textblob
 arrow==0.15.5
 attrs==19.1.0
 beautifulsoup4==4.9.0
@@ -35,7 +38,6 @@ pandas==1.0.3
 Pillow==7.1.2
 plyer==1.4.0
 protobuf==3.7.1
-pymongo==3.10.1
 pyparsing==2.4.7
 pyrsistent==0.14.11
 PySocks==1.7.1
@@ -58,3 +60,6 @@ tldextract==2.2.2
 tqdm==4.45.0
 tweepy==3.8.0
 urllib3==1.24.1
+pandas_datareader==0.8.1
+twitter==1.17.0
+pymongo[srv]

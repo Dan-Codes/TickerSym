@@ -1,7 +1,6 @@
 import re
 from statistics import mean
 
-import pandas as pd
 import datetime
 # pip install pandas-datareader
 import pandas as pd
@@ -14,11 +13,9 @@ from nltk.tokenize import word_tokenize
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 import miningTweets as mt
 import oldTweets
-import prettytable
 import stock_market_lexicon
 from textblob import TextBlob
 from tabulate import tabulate
-import json
 
 import matplotlib.pyplot as plt
 import numpy as np

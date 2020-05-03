@@ -299,7 +299,7 @@ if __name__ == '__main__':
     # addDates('SP500-covid19.csv')
     # getPriceData('SP500-covid19.csv')
     printDF('SP500-covid19.csv')
-    printGraph('sp500.csv')
+    printGraph('sp500-covid19.csv')
     printDF('sp500.csv')
     printGraph('sp500.csv')
     printDF('sp500-historical.csv')

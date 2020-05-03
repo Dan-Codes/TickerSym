@@ -16,10 +16,10 @@ from pymongo import MongoClient
 pd.set_option("display.max_columns", 100)
 pd.set_option("display.max_colwidth", 50)
 
-print("Current Time: ", datetime.datetime.now())
+#print("Current Time: ", datetime.datetime.now())
 client = MongoClient("mongodb+srv://dbSPX:SQSeKptrpjt6Bi7F@cluster0-p4uhp.mongodb.net/test?retryWrites=true&w=majority")
 db = client.test
-print(db)
+#print(db)
 
 ######################
 

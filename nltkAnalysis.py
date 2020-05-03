@@ -244,68 +244,49 @@ def cleanTweet(tweet):
 
 
 # opens the dataframe and prints it
-def printDF(file_name):
-    df = pd.read_csv(file_name, index_col='Date', parse_dates=True)
-    table = tabulate(df, headers='keys', tablefmt='psql')
-    print(table)
+def printDF(file_names):
+
+    print()
+    for file in file_names:
+        df = pd.read_csv(file, index_col='Date', parse_dates=True)
+        table = tabulate(df, headers='keys', tablefmt='psql')
+
+        print("Dataframe from: " + str(file))
+        print(table)
+        print()
 
 # X-axis contains list of dates, Y-axis contains the polarity
-def printGraph(file_name):
-    f = 'sp500-historical.csv'
-    df = pd.read_csv(file_name, index_col='Date', parse_dates=True)
+def printGraph(file_names):
 
-    dates = df.index.to_list()
-    polarityList = df['compound_polarity'].to_list()
+    count = 1
+    for file in file_names:
 
-    print(dates)
-    print(polarityList)
+        plt.figure(count)
+        df = pd.read_csv(file, index_col='Date', parse_dates=True)
+        dates = df.index.to_list()
+        polarityList = df['compound_polarity'].to_list()
 
-    axes = plt.gca()
-    axes.set_ylim([-.4, .4])
+        axes = plt.gca()
+        axes.set_ylim([-.4, .4])
 
-    polarityX = dates
-    polarityX_np = np.array(polarityX)
+        polarityX = dates
+        polarityY = polarityList
+        plt.plot(polarityX, polarityY)
 
-    polarityY = polarityList
-    polarityY_np = np.array(polarityY)
+        plt.xlabel('date')
+        plt.ylabel('tweet sentiments')
+        plt.title(file + " polarity trend")
 
-    plt.plot(polarityX, polarityY)
+        count += 1
 
-    # m, b = np.polyfit(polarityX_np, polarityY_np, 1)
-    # print(m, b)
-
-    # plt.plot(np.array([x for x in range(0,len(polarityX))]), m*np.array([x for x in range(0,len(polarityX))]) + b)
-
-    plt.xlabel('date')
-    plt.ylabel('tweet sentiments')
-    plt.title(file_name + " polarity trend")
     plt.show()
 
 
 if __name__ == '__main__':
     sid.lexicon.update(words)  # updates the Vader lexicon with the stock market terminology words
-    # addDates('sp500-historical.csv')
-    #addDates('sp500-historical.csv')
-    ##    getPriceData('sp500.csv')
-    ##    printDF("sp500.csv")
+    
+    csv_files = ['SP500-covid19.csv', 'sp500.csv', 'sp500-historical.csv']
 
-    # make_dataframe_from_stock_tweets()
-    #getPriceData('sp500-historical.csv')
-    # printDF("sp500-historical.csv")
-
-    ###############################
-
-
-    # addDates('SP500-covid19.csv')
-    # getPriceData('SP500-covid19.csv')
-    printDF('SP500-covid19.csv')
-    printGraph('sp500-covid19.csv')
-    printDF('sp500.csv')
-    printGraph('sp500.csv')
-    printDF('sp500-historical.csv')
-    printGraph('sp500-historical.csv')
-
-
-
-
+    printDF(csv_files)
+    printGraph(csv_files)
 
